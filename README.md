@@ -1,1 +1,8 @@
-Full-Stack home assignment
+# Lists API
+
+## Getting started
+
+```
+yarn install
+yarn start
+```
