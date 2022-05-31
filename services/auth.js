@@ -35,6 +35,8 @@ async function getUserDetailsByAuth0(idToken) {
       lastLoginAt: new Date(),
       sub: userDetails.sub,
       times: user ? user.times + 1 : 1,
+      picture: userDetails.picture,
+      name: userDetails.name,
     };
 
     await UserRepo.upsert(userData);
