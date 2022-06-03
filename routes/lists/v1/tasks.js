@@ -27,7 +27,11 @@ router.post(
 router.put(
   '/',
   asyncMiddleware(async function (req) {
-    console.log('#####put#####');
+    if (!_.isNumber(req.body.id)) {
+      throw createError(400, 'invalid data');
+    }
+
+    return await TasksService.updateTask(req.account, req.body);
   }),
 );
 
@@ -35,8 +39,7 @@ router.put(
 router.post(
   '/job',
   asyncMiddleware(async function (req) {
-    console.log('#####create job#####');
-    if (_.isEmpty(req.body.taskId) || _.isEmpty(req.body.name)) {
+    if (!_.isNumber(req.body.taskId) || _.isEmpty(req.body.name) || !_.isEmpty(req.body.id)) {
       throw createError(400, 'invalid data');
     }
 
@@ -48,10 +51,11 @@ router.post(
 router.put(
   '/job',
   asyncMiddleware(async function (req) {
-    console.log('#####put#####');
-    if (_.isEmpty(req.body.taskId) || _.isEmpty(req.body.name)) {
+    if (!_.isNumber(req.body.taskId) || !_.isNumber(req.body.id)) {
       throw createError(400, 'invalid data');
     }
+
+    return await TasksService.updateJob(req.account, req.body);
   }),
 );
 

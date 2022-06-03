@@ -8,6 +8,7 @@ async function getData(account) {
   SELECT *
   FROM "tasks"
   WHERE "account" = :account OR "scope" = 'public' OR :account = ANY("releaseAccount")
+  ORDER BY id DESC
   `;
 
   const tasksRows = await db.sequelize.query(sql, {
@@ -25,8 +26,12 @@ async function getData(account) {
 
   const jobs = await JobsRepo.findAndCountAll({
     where: {
-      id: taskId,
+      taskId: taskId,
     },
+    order: [
+      ['status', 'desc'],
+      ['id', 'desc'],
+    ],
   });
 
   return {
@@ -36,6 +41,21 @@ async function getData(account) {
     },
     jobs,
   };
+}
+
+async function updateTask(account, task) {
+  //TODO check right. only owner can release to another account
+  await TasksRepo.update(
+    {
+      name: task.name,
+      descriptions: task.descriptions,
+      scope: task.scope,
+      releaseAccount: task.releaseAccount,
+    },
+    { where: { id: task.id } },
+  );
+
+  return await getData(account);
 }
 
 async function createTask(account, task) {
@@ -50,8 +70,27 @@ async function createJob(account, job) {
   return await getData(account);
 }
 
+async function updateJob(account, job) {
+  //TODO check right
+  await JobsRepo.update(
+    {
+      name: job.name,
+      descriptions: job.descriptions,
+      price: job.price,
+      cost: job.cost,
+      status: job.status,
+      taskId: job.taskId,
+    },
+    { where: { id: job.id } },
+  );
+
+  return await getData(account);
+}
+
 module.exports = {
   getData,
   createTask,
   createJob,
+  updateJob,
+  updateTask,
 };
