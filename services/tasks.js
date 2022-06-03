@@ -44,16 +44,17 @@ async function getData(account) {
 }
 
 async function updateTask(account, task) {
-  //TODO check right. only owner can release to another account
-  await TasksRepo.update(
-    {
-      name: task.name,
-      descriptions: task.descriptions,
-      scope: task.scope,
-      releaseAccount: task.releaseAccount,
-    },
-    { where: { id: task.id } },
-  );
+  if (task && (await checkRight(account, task.id))) {
+    await TasksRepo.update(
+      {
+        name: task.name,
+        descriptions: task.descriptions,
+        scope: task.scope,
+        releaseAccount: task.releaseAccount,
+      },
+      { where: { id: task.id } },
+    );
+  }
 
   return await getData(account);
 }
@@ -71,20 +72,60 @@ async function createJob(account, job) {
 }
 
 async function updateJob(account, job) {
-  //TODO check right
-  await JobsRepo.update(
-    {
-      name: job.name,
-      descriptions: job.descriptions,
-      price: job.price,
-      cost: job.cost,
-      status: job.status,
-      taskId: job.taskId,
-    },
-    { where: { id: job.id } },
-  );
+  if (job && (await checkRight(account, job.taskId))) {
+    await JobsRepo.update(
+      {
+        name: job.name,
+        descriptions: job.descriptions,
+        price: job.price,
+        cost: job.cost,
+        status: job.status,
+        taskId: job.taskId,
+      },
+      { where: { id: job.id } },
+    );
+  }
 
   return await getData(account);
+}
+
+async function deleteTask(account, taskId) {
+  if (await checkRight(account, taskId)) {
+    await TasksRepo.destroy({ where: { id: taskId } });
+    await JobsRepo.destroy({ where: { taskId: taskId } });
+  }
+
+  return await getData(account);
+}
+
+async function deleteJob(account, jobId) {
+  let job = await JobsRepo.findOne({
+    where: {
+      id: jobId,
+    },
+    raw: true,
+  });
+
+  if (job && (await checkRight(account, job.taskId))) {
+    await JobsRepo.destroy({ where: { id: job.id } });
+  }
+
+  return await getData(account);
+}
+
+async function checkRight(account, taskId) {
+  let tasks = await TasksRepo.findOne({
+    where: {
+      id: taskId,
+    },
+    raw: true,
+  });
+
+  if (tasks && (tasks.account === account || tasks.scope === 'public' || tasks.releaseAccount.includes(account))) {
+    return true;
+  }
+
+  return false;
 }
 
 module.exports = {
@@ -93,4 +134,6 @@ module.exports = {
   createJob,
   updateJob,
   updateTask,
+  deleteTask,
+  deleteJob,
 };

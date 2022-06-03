@@ -35,6 +35,19 @@ router.put(
   }),
 );
 
+// delete
+router.delete(
+  '/:id',
+  asyncMiddleware(async function (req) {
+    const { id } = req.params;
+    if (!id) {
+      throw createError(400, 'Missing token hash');
+    }
+
+    return await TasksService.deleteTask(req.account, id);
+  }),
+);
+
 // create
 router.post(
   '/job',
@@ -56,6 +69,19 @@ router.put(
     }
 
     return await TasksService.updateJob(req.account, req.body);
+  }),
+);
+
+// delete
+router.delete(
+  '/job/:id',
+  asyncMiddleware(async function (req) {
+    const { id } = req.params;
+    if (!id) {
+      throw createError(400, 'Missing token hash');
+    }
+
+    return await TasksService.deleteJob(req.account, id);
   }),
 );
 
