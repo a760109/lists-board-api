@@ -3,6 +3,7 @@ const router = express.Router();
 const { asyncMiddleware, createError } = require('../../common');
 const _ = require('lodash');
 const TasksService = require('../../../services/tasks');
+const { dispatchMessage } = require('../../websocket');
 
 router.get(
   '/',
@@ -19,6 +20,8 @@ router.post(
       throw createError(400, 'invalid data');
     }
 
+    dispatchMessage(req.get('AUTH0-TOKEN'), { event: 'updateTask', data: 0 });
+
     return await TasksService.createTask(req.account, req.body);
   }),
 );
@@ -30,6 +33,8 @@ router.put(
     if (!_.isNumber(req.body.id)) {
       throw createError(400, 'invalid data');
     }
+
+    dispatchMessage(req.get('AUTH0-TOKEN'), { event: 'updateTask', data: 0 });
 
     return await TasksService.updateTask(req.account, req.body);
   }),
@@ -44,6 +49,8 @@ router.delete(
       throw createError(400, 'Missing token hash');
     }
 
+    dispatchMessage(req.get('AUTH0-TOKEN'), { event: 'updateTask', data: id });
+
     return await TasksService.deleteTask(req.account, id);
   }),
 );
@@ -55,6 +62,8 @@ router.post(
     if (!_.isNumber(req.body.taskId) || _.isEmpty(req.body.name) || !_.isEmpty(req.body.id)) {
       throw createError(400, 'invalid data');
     }
+
+    dispatchMessage(req.get('AUTH0-TOKEN'), { event: 'updateTask', data: req.body.taskId });
 
     return await TasksService.createJob(req.account, req.body);
   }),
@@ -68,6 +77,8 @@ router.put(
       throw createError(400, 'invalid data');
     }
 
+    dispatchMessage(req.get('AUTH0-TOKEN'), { event: 'updateTask', data: req.body.taskId });
+
     return await TasksService.updateJob(req.account, req.body);
   }),
 );
@@ -80,6 +91,8 @@ router.delete(
     if (!id) {
       throw createError(400, 'Missing token hash');
     }
+
+    dispatchMessage(req.get('AUTH0-TOKEN'), { event: 'updateTask', data: 0 });
 
     return await TasksService.deleteJob(req.account, id);
   }),

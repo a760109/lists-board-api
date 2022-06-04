@@ -2,6 +2,7 @@ const http = require('http');
 
 setTimeout(async function () {
   const app = require('./app');
+  const websocket = require('./routes/websocket');
 
   const port = normalizePort(process.env.PORT || '8443');
   app.set('port', port);
@@ -11,6 +12,8 @@ setTimeout(async function () {
    */
   let options = {};
   const server = http.createServer(options, app);
+
+  websocket.init(server);
 
   /**
    * Listen on provided port, on all network interfaces.

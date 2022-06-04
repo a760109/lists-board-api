@@ -1,4 +1,4 @@
-function contentTypeTransformMiddleware(req, res, next) {
+function contentTypeTransform(req, res, next) {
   setTimeout(async function () {
     const method = req.method.toUpperCase();
     if (method !== 'POST' && method !== 'PUT' && method !== 'PATCH') {
@@ -29,5 +29,5 @@ function contentTypeTransformMiddleware(req, res, next) {
 }
 
 module.exports = {
-  contentTypeTransformMiddleware,
+  contentTypeTransform,
 };

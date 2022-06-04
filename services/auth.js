@@ -1,7 +1,7 @@
 const jwksClient = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const UserRepo = require('../db/user');
+const UsersRepo = require('../db/users');
 
 const client = jwksClient({
   jwksUri: `https://${config.AUTH0_DOMAIN}/.well-known/jwks.json`,
@@ -23,7 +23,7 @@ async function getUserDetailsByAuth0(idToken) {
   }
 
   if (userDetails) {
-    let user = await UserRepo.findOne({
+    let user = await UsersRepo.findOne({
       where: {
         account: userDetails.email,
       },
@@ -39,7 +39,7 @@ async function getUserDetailsByAuth0(idToken) {
       name: userDetails.name,
     };
 
-    await UserRepo.upsert(userData);
+    await UsersRepo.upsert(userData);
 
     return {
       ...userData,

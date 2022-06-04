@@ -45,6 +45,9 @@ async function getData(account) {
 
 async function updateTask(account, task) {
   if (task && (await checkRight(account, task.id))) {
+    if (task.scope === 'public') {
+      task.releaseAccount = [];
+    }
     await TasksRepo.update(
       {
         name: task.name,
